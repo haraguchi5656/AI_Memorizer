@@ -1,0 +1,141 @@
+<div class="container">
+  <!-- 記事の詳細 -->
+  <div class="article">
+    <h1 class="article-title"><%= @article.title %></h1>
+    <div class="article-body">
+      <%= simple_format(@article.body, class: "article-content") %>
+    </div>
+  </div>
+  <!-- コメント一覧 -->
+  <div class="comments">
+    <h2>Comments</h2>
+    <div class="comment-list">
+      <%= render @article.comments %>
+    </div>
+  </div>
+  <!-- コメント投稿フォーム -->
+  <div class="comment-form">
+    <h2>Add a comment:</h2>
+    <%= render 'comments/form' %>
+  </div>
+  <!-- 記事のアクション -->
+  <div class="article-actions">
+    <ul>
+      <li>
+        <%= link_to "編集", edit_article_path(@article), class: "action-button edit-button" %>
+      </li>
+      <li>
+        <%= link_to "削除", article_path(@article), method: :delete, data: { confirm: "本当に削除しますか？" }, class: "action-button delete-button" %>
+      </li>
+      <li>
+        <%= link_to "戻る", articles_path, class: "action-button back-button" %>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+<style>
+ /* 全体のスタイル */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.article {
+  background-color: #fff3cd;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+
+  .article-title {
+    color: #4a4a4a;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+
+  .article-body {
+    .article-content {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+  }
+}
+
+.comments {
+  margin-bottom: 30px;
+
+  h2 {
+    color: #4a4a4a;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .comment-list {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.comment-form {
+  margin-bottom: 30px;
+
+  h2 {
+    color: #4a4a4a;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+}
+
+.article-actions {
+  text-align: center;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    display: inline-block;
+  }
+
+  li {
+    display: inline;
+    margin-right: 10px;
+  }
+
+  .action-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #fff;
+    transition: background-color 0.3s;
+
+    &.edit-button {
+      background-color: #007bff;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+
+    &.delete-button {
+      background-color: #dc3545;
+
+      &:hover {
+        background-color: #a71d2a;
+      }
+    }
+
+    &.back-button {
+      background-color: #6c757d;
+
+      &:hover {
+        background-color: #494f54;
+      }
+    }
+  }
+}
