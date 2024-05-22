@@ -1,0 +1,81 @@
+<div class="form-container">
+  <%= form_with model: article, local: false, html: { class: "article-form" } do |f| %>
+    <div class="form-group">
+      <%= f.label :title %>
+      <%= f.text_field :title, class: "form-control" %>
+      <% article.errors.full_messages_for(:title).each do |message| %>
+        <div class="error-message"><%= message %></div>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :body %>
+      <%= f.text_area :body, class: "form-control", rows: 10 %>
+      <% article.errors.full_messages_for(:body).each do |message| %>
+        <div class="error-message"><%= message %></div>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :status %>
+      <%= f.select :status, ['public', 'private', 'archived'], { selected: 'public' }, class: "form-control" %>
+    </div>
+
+    <div class="form-actions">
+      <%= f.submit class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+
+<style>
+ /* 全体のスタイル */
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  .article-form {
+    .form-group {
+      margin-bottom: 20px;
+
+      label {
+        font-weight: bold;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+    }
+
+    .form-actions {
+      text-align: right;
+
+      .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+    }
+  }
+}

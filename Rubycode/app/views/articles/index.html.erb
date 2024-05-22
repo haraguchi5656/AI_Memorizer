@@ -1,0 +1,145 @@
+<!-- ページ全体を囲むコンテナ -->
+<div class="container">
+
+ <!-- ヘッダー部分 -->
+ <div class="header">
+   <h1>記事投稿サイト プロトタイプ</h1>
+   <p>現在 <%= Article.public_count %> 記事を掲載中</p>
+ </div>
+
+ <!-- 記事一覧 -->
+ <div class="article-list">
+   <ul>
+     <% @articles.each do |article| %>
+       <% unless article.archived? %>
+         <li>
+           <!-- 記事のタイトルにリンクを設定 -->
+           <%= link_to article.title, article, class: "article-title" %>
+         </li>
+       <% end %>
+     <% end %>
+   </ul>
+ </div>
+
+ <!-- "筆を執る！"ボタン -->
+ <div class="button-container">
+   <%= button_to "筆を執る！", new_article_path, method: :get, class: "new-article-button" %>
+ </div>
+</div>
+
+<style>
+ /* 全体のスタイル */
+ body {
+   font-family: Arial, sans-serif;
+   background-color: #f5f5f5;
+   margin: 0;
+   padding: 0;
+ }
+
+ /* コンテナのスタイル */
+ .container {
+   max-width: 800px;
+   margin: 0 auto;
+   padding: 20px;
+   background-color: #fff;
+   border-radius: 5px;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+ }
+
+ /* ヘッダーのスタイル */
+ .header {
+   text-align: center;
+   margin-bottom: 30px;
+ }
+
+ .header h1 {
+   color: #4a4a4a;
+   font-size: 28px;
+ }
+
+ .header p {
+   color: #888;
+   font-size: 16px;
+ }
+
+ /* 記事一覧のスタイル */
+ .article-list {
+  margin-bottom: 30px;
+  text-align: center;
+  }
+  .article-list ul {
+  list-style-type: none;
+  padding: 0;
+  display: inline-block;
+  text-align: left;
+  }
+  .article-list li {
+  margin-bottom: 10px;
+  background-color: #fff3cd;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  transform: rotate(-2deg);
+  transition: transform 0.3s;
+  }
+  .article-list li:hover {
+  transform: rotate(0deg) scale(1.05);
+  }
+
+ /* 記事タイトルのスタイル */
+ .article-title {
+   color: #333;
+   font-size: 18px;
+   text-decoration: none;
+   transition: color 0.3s;
+ }
+
+ .article-title:hover {
+   color: #666;
+ }
+
+ /* ボタンコンテナのスタイル */
+ .button-container {
+   text-align: center;
+ }
+
+ /* "筆を執る！"ボタンのスタイル */
+ .new-article-button {
+   background-color: #ffcc80;
+   color: #fff;
+   border: none;
+   padding: 10px 20px;
+   font-size: 16px;
+   border-radius: 5px;
+   cursor: pointer;
+   transition: background-color 0.3s;
+ }
+
+ .new-article-button:hover {
+   background-color: #ffb74d;
+ }
+
+ /* レスポンシブデザイン用のメディアクエリ */
+ @media (max-width: 600px) {
+   .container {
+     padding: 10px;
+   }
+
+   .header h1 {
+     font-size: 24px;
+   }
+
+   .header p {
+     font-size: 14px;
+   }
+
+   .article-title {
+     font-size: 16px;
+   }
+
+   .new-article-button {
+     font-size: 14px;
+     padding: 8px 16px;
+   }
+ }
+</style>
