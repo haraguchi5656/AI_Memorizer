@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import supabase from '../../lib/supabase';
 
 export async function getServerSideProps({ params }) {
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+  const { data: article, error } = await supabase
+    .from('articles')
+    .select('*, comments(*)')
+    .eq('id', params.id)
+    .single();
 
-  const res = await fetch(`${baseUrl}/api/articles/${params.id}`);
-  if (!res.ok) return { notFound: true };
-  const article = await res.json();
-
+  if (error) return { notFound: true };
   return { props: { article } };
 }
 

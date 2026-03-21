@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import supabase from '../lib/supabase';
 
 export async function getServerSideProps() {
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'http://localhost:3000';
+  const { data: articles, error } = await supabase
+    .from('articles')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-  const res = await fetch(`${baseUrl}/api/articles`);
-  const articles = await res.json();
-
+  if (error) return { props: { articles: [] } };
   return { props: { articles } };
 }
 
