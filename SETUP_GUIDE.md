@@ -9,8 +9,8 @@ Next.js + Supabase 版 AI_Memorizer を公開するまでの全手順です。
 
 1. [Node.js のインストール](#1-nodejs-のインストール)
 2. [Supabase プロジェクトの作成](#2-supabase-プロジェクトの作成)
-3. [データベーステーブルの作成](#3-データベーステーブルの作成)
-4. [Supabase の接続情報を控える](#4-supabase-の接続情報を控える)
+3. [データベーステーブルの作成](#3-データベーステーブルの作成)（[3-2. RLS の設定](#3-2-rlsrow-level-securityの設定)）
+4. [Supabase の接続情報を控える](#4-supabase-の接続情報を控える)（新キー / 旧キー対応）
 5. [ローカル環境の準備と動作確認](#5-ローカル環境の準備と動作確認)
 6. [GitHub へのプッシュ](#6-github-へのプッシュ)
 7. [Vercel へのデプロイ](#7-vercel-へのデプロイ)
@@ -96,21 +96,60 @@ create trigger comments_updated_at before update on comments
 4. 画面下部に `Success. No rows returned` と表示されれば成功
 5. 左サイドバーの **「Table Editor」** を開き、`articles` と `comments` の 2 テーブルが存在することを確認
 
+### 3-2. RLS（Row Level Security）の設定
+
+Supabase ではテーブルをデフォルトで公開状態にしないよう、RLS を有効化しておく必要があります。
+**同じ SQL Editor** に以下を貼り付けて実行してください。
+
+```sql
+-- RLS を有効化（外部からの直接アクセスを遮断）
+alter table articles enable row level security;
+alter table comments enable row level security;
+```
+
+> **なぜ RLS が必要か？**
+> Supabase では `anon`（匿名）キーや Publishable キーを使えばブラウザから直接テーブルを読み書きできます。
+> RLS を有効にしておくと、ポリシーを定義しない限りすべてのアクセスが拒否されます。
+> このアプリは Secret キー（または旧 `service_role` キー）を使う API Route 経由でのみ DB にアクセスするため、
+> 追加のポリシー設定は不要です（Secret キー / `service_role` キーは RLS をバイパスします）。
+
 ---
 
 ## 4. Supabase の接続情報を控える
 
+> **2025年6月以降の新規プロジェクトは「新キー方式」が適用されます。**
+> 旧キー（`eyJ...` 形式）と新キー（`sb_secret_...` 形式）でタブの場所が異なります。
+> 以下の手順でどちらか該当する方を確認してください。
+
+### 4-1. 新キー方式（`sb_secret_...`）の場合 ← 2025年6月以降の新規プロジェクトはこちら
+
 1. 左サイドバーの **「Project Settings」**（歯車アイコン）をクリック
-2. **「API」** タブを開く
+2. **「API Keys」** タブを開く
+3. **「Publishable key」** と **「Secret key」** が表示される
+   - 「Secret key」は初期状態で非表示になっているので **「Reveal」** をクリックして表示
+4. 以下の 2 つの値をメモ帳などに控える
+
+   | 項目 | 場所 | 環境変数名 |
+   |------|------|-----------|
+   | **Project URL** | ページ上部の `https://xxxx.supabase.co` | `SUPABASE_URL` |
+   | **Secret key** | `sb_secret_...` で始まる文字列 | `SUPABASE_SERVICE_ROLE_KEY` |
+
+   > **注意:** Secret key は管理者権限を持つ秘密情報です。
+   > 絶対に GitHub や SNS に公開しないでください。
+   > 操作は組織の監査ログに記録され、即時失効させることも可能です。
+
+### 4-2. 旧キー方式（`eyJ...`）の場合 ← 既存プロジェクトや Legacy タブが表示される場合
+
+1. 左サイドバーの **「Project Settings」** をクリック
+2. **「API」** タブ → **「Legacy API Keys」** タブを開く
 3. 以下の 2 つの値をメモ帳などに控える
 
-   | 項目 | 場所 |
-   |------|------|
-   | **Project URL** | `https://xxxx.supabase.co` の形式 |
-   | **service_role キー** | 「Project API keys」の `service_role` 欄（`eyJ...` で始まる長い文字列） |
+   | 項目 | 場所 | 環境変数名 |
+   |------|------|-----------|
+   | **Project URL** | `https://xxxx.supabase.co` の形式 | `SUPABASE_URL` |
+   | **service_role キー** | `eyJ...` で始まる長い文字列 | `SUPABASE_SERVICE_ROLE_KEY` |
 
-   > **注意:** `service_role` キーは管理者権限を持つ秘密情報です。
-   > 絶対に GitHub や SNS に公開しないでください。
+   > **注意:** `service_role` キーも同様に秘密情報です。公開しないでください。
 
 ---
 
@@ -136,7 +175,13 @@ SUPABASE_URL=（手順4で控えた Project URL）
 SUPABASE_SERVICE_ROLE_KEY=（手順4で控えた service_role キー）
 ```
 
-**記入例:**
+**記入例（新キー方式）:**
+```
+SUPABASE_URL=https://abcdefghijklmn.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=sb_secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**記入例（旧キー方式）:**
 ```
 SUPABASE_URL=https://abcdefghijklmn.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOi...
@@ -283,5 +328,10 @@ Vercel ダッシュボードの **「Settings > Environment Variables」** に
 
 ### Supabase にデータが保存されない
 
-Supabase の **「Project Settings > API」** で `service_role` キーを再度確認し、
+**新キー方式（`sb_secret_...`）の場合:**
+Supabase の **「Project Settings > API Keys」** で Secret key を再確認してください。
+「Reveal」をクリックして表示した値を `.env.local` にコピーし直してください（途中で切れていないか確認）。
+
+**旧キー方式（`eyJ...`）の場合:**
+Supabase の **「Project Settings > API > Legacy API Keys」** で `service_role` キーを再確認し、
 `.env.local` にコピーし直してください（途中で切れていないか確認）。
