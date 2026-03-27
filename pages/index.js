@@ -39,7 +39,7 @@ export default function Index({ articles }) {
 
       <div className="button-container">
         <Link href="/articles/new" className="new-article-button">
-          筆を執る！
+          執筆！
         </Link>
       </div>
     </div>
